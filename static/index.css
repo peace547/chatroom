@@ -1,0 +1,287 @@
+* {
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+}
+
+.iconfont {
+    font-size: 26px;
+}
+
+html,
+body,
+.chatroom {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    font-size: 14px;
+    color: #333;
+}
+
+.mask {
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.55);
+    position: absolute;
+    z-index: 2;
+}
+
+.area {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    border: 1px solid #ddd;
+    padding: 20px;
+    z-index: 3;
+    line-height: 30px;
+    width: 65%;
+    background-color: #d4d1d1;
+}
+
+.area input {
+    height: 30px;
+    border-radius: 3px;
+    padding-left: 5px;
+    float: left;
+    width: 70%;
+}
+
+.area button {
+    color: #fff;
+    background-color: #1890ff;
+    padding: 6px 0;
+    border-radius: 3px;
+    margin-left: 5%;
+    width: 25%;
+}
+
+input,
+button {
+    border: none;
+    outline: none;
+    background-color: none;
+}
+
+.container {
+    width: 100%;
+    position: absolute;
+    margin-top: 40px;
+    margin-bottom: 50px;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    position: absolute;
+    display: block;
+    padding: 15px;
+    list-style: none;
+    box-sizing: border-box;
+    overflow-y: auto;
+}
+.hide {
+    display: none;
+}
+
+.show {
+    display: block;
+}
+
+.gray {
+    color: #666;
+    font-size: 12px;
+}
+
+.header {
+    line-height: 40px;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    border-bottom: 1px solid #ddd;
+    text-align: center
+}
+
+.footer {
+    position: absolute;
+    width: 100%;
+    left: 0;
+    bottom: 0;
+    /* height: 90px; */
+    box-sizing: border-box;
+    background-color: #dedede;
+}
+
+.head_area {
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    text-align: center;
+}
+.uploadAvater {
+    width: 50px;
+    height: 50px;
+    background-color: #fff;
+    text-align: center;
+    display: flex;
+    align-items: center;
+    margin-right: 10px;
+}
+
+.icon-touxiang {
+    flex: 1;
+}
+
+.input_bar {
+    position: relative;
+    display: flex;
+    align-items: center;
+    padding-top: 10px;
+    /* height: 40px; */
+}
+
+.bar_line {
+    display: flex;
+    align-items: center;
+    align-content: center;
+    height: 50px;
+}
+
+.bar_line div {
+    text-align: center;
+    flex: 1;
+}
+
+.send {
+    flex: 2;
+    color: #fff;
+    background-color: #1890ff;
+    border-radius: 3px;
+    height: 36px;
+    margin: 0 10px;
+}
+.floatR {
+    float: right;
+}
+.floatL {
+    float: left;
+}
+
+.container li.system_tips {
+    font-size: 14px;
+    margin: 0 auto;
+    padding: 5px 10px;
+    width: 40%;
+    border-radius: 10px;
+    color: #fff;
+    background: #999;
+    margin-bottom: 10px;
+    text-align: center;    
+    margin-bottom: 30px;
+}
+.container li {
+    padding: 0 44px;    
+    position: relative;
+    margin-bottom: 30px;
+}
+.container li .message img {
+    width: 100%;
+    display: block;
+}
+.container li::after {
+    content: "";
+    display: table;
+    clear: both;
+}
+.avater {
+    width: 38px;
+    height: 38px;
+    position: absolute;
+    top: 0;
+    right: 0;
+}
+.avater_other {
+    width: 38px;
+    height: 38px;
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+.message {
+    position: relative;
+    background-color: #d0e9ff;
+    padding: 10px;
+    display: inline-block;
+    border-radius: 5px;
+    min-width: 50px;
+}
+.time {
+    position: absolute;
+    top: -20px;
+    right: 0px;
+    font-size: 12px;
+}
+.time_other {
+    position: absolute;
+    top: -20px;
+    left: 0px;
+    font-size: 12px;
+}
+
+.faceList {
+    display: flex;
+    flex-flow: row wrap;
+    overflow: auto;
+    background: #fff;
+}
+
+.faceList img {
+    height: auto;
+    width: 100%;
+    padding: 0;
+    margin: 0;
+}
+
+.emojione {
+    background-image: none;
+    top: 0;
+}
+
+.img_con {
+    width: 12.5%;
+    padding: 10px;
+}
+#pre {
+    visibility: hidden;
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+.public {
+    width: 100%;
+    height: 36px;
+    min-height: 36px;
+    max-height: 100px;
+    background: #fff;
+    padding: 8px 5px;
+    overflow-x: hidden;
+    overflow-y: auto;
+    line-height: 20px;
+    box-sizing: border-box;
+    font-size: 14px;;
+    resize: none;
+    display: block;
+    border-radius: 4px;
+    border: none;
+    outline: 0;
+}
+
+.right_input {    
+    flex: 8;
+    width: 100%;
+    min-height: 36px;
+    box-sizing: border-box;
+    position: relative;
+    margin-left: 10px;
+}

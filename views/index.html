@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>simple chatroom</title>
+    <link rel="stylesheet" href="http://at.alicdn.com/t/font_844402_rkg4k3gw6jd.css">
+    <link href="https://cdn.bootcss.com/emojione/2.2.7/assets/css/emojione.min.css" rel="stylesheet">
+    <link href="https://cdn.bootcss.com/emojione/2.2.7/assets/sprites/emojione.sprites.css" rel="stylesheet">
+    <link rel="stylesheet" href="/static/index.css">
+</head>
+
+<body>
+    <div class="chatroom">
+        <div class="mask"></div>
+        <div class="area">
+            <div class="head_area">
+                <input type="file" id="avaterInput" style="display: none">
+                <div class="uploadAvater"><i class="iconfont icon-touxiang"></i></div>
+                <div style="color: #fff">点击上传/更改头像</div>
+            </div>
+            <div>
+                <input autofocus type="text" class="input_name" placeholder="请输入你的名字">
+                <button id="coming" style="float:left">登录</button>
+            </div>
+        </div>
+        <div class="header">聊天室</div>
+        <ul class="container">
+        </ul>
+        <div class="footer">
+            <div class="input_bar">
+                <div class="right_input">
+                    <textarea id="pre" class="public"></textarea>
+                    <textarea id="textarea" class="public"></textarea>
+                </div>
+                <button id="send" class="send">发送</button>
+            </div>
+            <div class="bar_line">
+                <div><i class="iconfont icon-tupian1"></i><input type="file" id="fileInput" style="display: none"></div>
+                <div id="face_area"><i class="iconfont icon-biaoqing"></i></div>
+            </div>
+            <div class="faceList"></div>
+        </div>
+    </div>
+</body>
+<script src="https://cdn.bootcss.com/jquery/3.3.1/jquery.min.js"></script>
+<script src="https://cdn.bootcss.com/socket.io/2.1.1/socket.io.js"></script>
+<script src="https://cdn.bootcss.com/emojione/2.2.7/lib/js/emojione.min.js"></script>
+<script>
+    $(document).ready(function() {
+        $(document).click(function() {
+            $('.faceList').scrollTop(0)
+            $('.faceList').css('display', 'none')
+            $('.footer').animate({'bottom': '0'}, 300)
+            $('#face_area').removeClass('open')
+        })
+
+        const socket = io() //用io()创建连接 用on(),emit()发送和接收数据
+        let name = null
+        let avater = ''
+        const emoji = '😀 😃 😄 😁 😆 😅 😂 🤣 😊 😇 🙂 🙃 😉 😌 😍 😘 😗 😙 😚 😋 😛 😝 😜 😎 😏 😒 😞 😔 😟 😕 🙁 😣 😖 😫 😩 😢 😭 😤 😠 😡 😳 😱 😨 😰 😥 😓 🤗 🤔 🤥 😶 😐 😑 😬 🙄 😯 😦 😧 😮 😲 😴 🤤 😪 😵 🤐 🤢 🤧 😷 🤒 🤕 🤑 🤠 🤝 👍 👎 👏 ️👌 ⛅ ☀️ 🌦️ 🌧️ ⛈️ 🌩️ 🌨️ 🌱 🌿 ️🍀 🌹 🌸 🍂 🍃 🌼 🐣 🐢 💩 👻 👾 🤖 🐷 🐶 🐱 🦀 🦐 🐞 🐓';
+        $('.input_name').focus()
+
+         /*向服务端发送登录事件*/
+        $('#coming').click(() => {
+            name = $('.input_name').val()
+            if(name) {
+                socket.emit('login', {
+                    username: name,
+                    avater
+                })
+                cutEmoji()
+            } else {
+                alert('请输入名字~')
+            }
+            
+        })
+        
+        //emoji图片处理
+        function cutEmoji() {
+            emojione.imagePathPNG = "static/img/emoji/"
+            let emojis = emoji.split(' ').filter(v => v).map(v => ({ text: v, url: emojione.unicodeToImage(v) }))
+            $.each(emojis, (index, item) => { 
+                $('.faceList').append(`<div class="img_con" onclick="tapFace('${item.text}')">${item.url}</div>`)
+            })
+        }
+        
+        //发送本地图片
+        $('.icon-tupian1').click(() => {
+            $("#fileInput").click()
+        })
+        
+        //上传头像
+        $('.uploadAvater').click(() => {
+            $('#avaterInput').click()
+        })
+        
+        //图片处理并发送
+        $("#fileInput").change((e) => {
+            var file = e.target.files[0]
+            var AllowImgFileSize = 1024*1024*20
+            if (file) {
+                var reader = new FileReader()
+                var imgUrlBase64 = reader.readAsDataURL(file)
+                reader.onload = function() {
+                    if (AllowImgFileSize < reader.result.length) {
+                        alert('上传失败，请上传不大于20M的图片！')
+                        return
+                    } else {
+                        socket.emit('sendMessage', {
+                            username: name,
+                            message: this.result,
+                            type: 2,
+                            avater
+                        })
+                    }
+                }
+            }
+        })
+        
+        $("#avaterInput").change((e) => {
+            var file = e.target.files[0]
+            var AllowImgFileSize = 1024*1024*20
+            if (file) {
+                var reader = new FileReader()
+                var imgUrlBase64 = reader.readAsDataURL(file) 
+                reader.onload = function() {
+                    if (AllowImgFileSize < reader.result.length) {
+                        alert('上传失败，请上传不大于20M的图片！')
+                        return
+                    } else {
+                        avater = this.result
+                        $('.uploadAvater')[0].innerHTML = `<img src=${this.result} width="100%">`;
+                    }
+                }
+            }
+        })
+
+        let pre = document.getElementById('pre')
+        let el = document.getElementById('textarea')
+
+        $('#send').click(() => {
+            let message = el.value
+            if (message === "") {
+                alert('请输入信息')
+                return
+            }
+            socket.emit('sendMessage', {
+                username: name,
+                message,
+                type: 1,
+                avater
+            })
+        })
+
+        //接收服务端的事件 区别当前用户和别人 图片消息和文字消息
+        socket.on('receiveMessage', (obj) => {
+            if(obj.username === name) {
+                if(obj.type === 1) {
+                    $('.container').append(`
+                        <li>
+                            <div>
+                                <img class='avater' src="${obj.avater}">
+                                <div class='message floatR'>${obj.message}<span class="time">${obj.username}</span></div>
+                            </div>
+                        </li>`)
+                    el.value = ''
+                    pre.value = ''
+                } else {
+                    $('.container').append(`
+                        <li>
+                            <div>
+                                <img class='avater' src="${obj.avater}">
+                                <div class='message floatR'><img src="${obj.message}" /><span class="time">${obj.username}</span></div>
+                            </div>
+                        </li>`)
+                }
+            } else {
+                if(obj.type === 1) {
+                    $('.container').append(`
+                        <li>
+                            <div>
+                                <img class='avater_other' src="${obj.avater}">
+                                <div class='message floatL'>${obj.message}<span class="time_other">${obj.username}</span></div>
+                            </div>
+                        </li>`)
+                } else {
+                    $('.container').append(`
+                        <li>
+                            <div>
+                                <img class='avater_other' src="${obj.avater}">
+                                <div class='message floatL'><img src="${obj.message}" /><span class="time_other">${obj.username}</span></div>
+                            </div>
+                        </li>`)
+                }
+            }
+            $('.container').scrollTop($('.container')[0].scrollHeight)
+        })
+
+        socket.on('login', (name) => {
+            $('.header')[0].innerHTML = `欢迎你 ${name}`
+            $('.mask').addClass('hide')
+            $('.area').addClass('hide')
+            el.focus()
+        })
+
+        socket.on('loginSuccess', (text) => {
+            console.log('登录成功')
+        })
+
+        socket.on('loginFailed', (text) => {
+            alert(text)
+            $('.input_name').val('')
+            $('.input_name').focus()
+        })
+
+        socket.on('add', (name) => {
+            $('.container').append(`<li class='system_tips'>${name}加入群聊</li>`)
+            $('.container').scrollTop($('.container')[0].scrollHeight)
+        })
+        
+        socket.on('leave', (name) => {
+            $('container').append(`<li class='system_tips' style='color:#666'>${name}退出群聊</li>`)
+            $('.container').scrollTop($('.container')[0].scrollHeight)
+        })
+        
+        //enter键操作判断
+        document.onkeydown = (event) => {
+            if(event.keyCode === 13 && $('.mask').hasClass('hide')) {
+                $('#send').trigger('click')
+                event.preventDefault()
+            } else if (event.keyCode === 13) {
+                $('#coming').trigger('click')
+            }
+        }
+
+        $('#face_area').click(function(e) {
+            if($(this).hasClass('open')) {
+                $(this).parent().next('.faceList').scrollTop(0)
+                $(this).parent().next('.faceList').css({'display': 'none'})
+                $('.footer').animate({'bottom': '0'}, 300)
+                $(this).removeClass('open')
+            } else {
+                $(this).addClass('open')
+                $(this).parent().next('.faceList').css({'display': 'flex', 'height': '180px'})
+            }
+            e.stopPropagation()
+        })
+
+        var cursur
+        
+        //拼接表情文字
+        tapFace = function (txt) {
+            var e = window.event
+            let input = pre.value
+            let range = document.createRange()
+            if (cursur !== undefined) {
+                let frontTxt = el.value.substr(0, cursur),
+                    endTxt = el.value.substr(cursur)
+                input = frontTxt + txt + endTxt
+                let finalCursur = cursur + txt.length
+                e.target.selectionStart = finalCursur
+                e.target.selectionEnd = finalCursur
+                cursur = finalCursur
+                range.collapse(true)
+            } else {
+                input += txt
+            }
+            pre.value = input
+            el.value = input
+            el.style.height = pre.scrollHeight + 'px'
+            e.stopPropagation()
+        }
+        
+        //监听input事件，输入框自适应高度
+        $(el).on('input', function() {
+            pre.value = el.value
+            el.style.height = pre.scrollHeight + 'px'
+        })
+
+        $(el).click(function(e) {
+            cursur = e.target.selectionStart
+        })
+
+        $(el).blur(function(e) {
+            cursur = e.target.selectionStart
+        })
+    })
+</script>
+
+</html>
